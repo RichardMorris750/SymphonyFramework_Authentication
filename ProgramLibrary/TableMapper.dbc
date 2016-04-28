@@ -1,0 +1,30 @@
+import System
+import System.Collections.Generic
+import System.Text
+
+
+namespace ProgramLibrary
+
+	public class TableMapper
+		
+		public method MapTableToFile	,string
+			in req tableName			,string
+			endparams
+		proc
+			data fileName	,string
+			using tableName select
+			("GROUP"),
+				fileName = "SYMPHONYDATA:groups.ism"
+			("PART"),
+				fileName = "SYMPHONYDATA:parts.ism"
+			("SUPPLIER"),
+				fileName = "SYMPHONYDATA:suppliers.ism"
+			endusing
+			
+			mreturn fileName
+		endmethod
+		
+		
+	endclass
+	
+endnamespace

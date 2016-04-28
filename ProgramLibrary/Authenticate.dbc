@@ -1,0 +1,150 @@
+import System
+import System.Collections.Generic
+import System.Text
+
+import Symphony.Harmony.Security
+import Symphony.Harmony.Types
+
+namespace ProgramLibrary
+
+	public class Authenticate implements ISymphonyAuthentication
+		
+		;;this is just going to store the attemted connections
+		private mClientDictionary	,@Dictionary<Guid, authDetails>	,new Dictionary<Guid, authDetails>()
+
+		cls structure authDetails
+			username		,string
+			authroized		,boolean
+		endstructure
+		
+		public virtual method ValidateUser, String
+			username, String 
+			password, String 
+			clientToken, Guid 
+			endparams
+		proc
+			data auth			,authDetails
+			data response		,string		,string.Empty
+
+			if (mClientDictionary.TryGetValue(clientToken, auth) == true) then
+			begin
+				;;his means the client has connected before - if we have a negative authenticated value then they are not authorized
+				call checkAuth
+			end
+			else
+			begin
+				auth.username = username.ToUpper()
+
+				;;this means this client has not been authenticated.
+				using username.ToUpper() select
+				("ANONYMOUS"),
+					auth.authroized = true	;;let's allow Anonymous connections
+				("GUEST"),
+					auth.authroized = false	;;guest are not allowed
+				("RICHARD"),
+					auth.authroized = true	;;named user allowed
+				endusing
+
+				;;store the client details
+				mClientDictionary.Add(clientToken, auth)
+
+				;;check they are authorized
+				call checkAuth
+			end
+
+			mreturn response
+
+		checkAuth,
+			if (auth.authroized == false)
+				response = string.Concat("User : ", auth.username, " Is not authorized on this server.")
+			return
+
+		endmethod
+		
+		public virtual method ValidateRequest, String
+			clientToken, Guid 
+			requestType, ClientRequestType 
+			requestName, String 
+			fieldList, @List<FieldDataDefinition> 
+			endparams
+		proc
+			data auth			,authDetails
+			data requestOK		,boolean		,false
+			data response		,string			,string.Empty
+
+			if (mClientDictionary.TryGetValue(clientToken, auth) == true) then
+			begin
+				;;found the existing client details - can they perform the requested operation?
+				using requestType select
+				(ClientRequestType.SelectRequest),
+				begin
+					;;here we can check they are authroized to acces the selected "file"
+					if (%instr(1, requestName.ToUpper(), "PARTS"))
+					begin
+						using auth.username select
+						("ANONYMOUS"),
+							requestOK = false	;;let's allow Anonymous connections
+						("RICHARD"),
+							requestOK = true	;;named user allowed
+						endusing
+						call checkAuthSelect
+						if (requestOK == true)
+							call checkFieldAccess_PARTS
+					end
+				end
+				(ClientRequestType.StoredProcedure),
+				begin
+					using requestName.ToUpper() select
+					("PROGRAMMETHOD"),
+					begin
+						using auth.username select
+						("ANONYMOUS"),
+							requestOK = false	;;Anonymous can't run this method
+						("RICHARD"),
+							requestOK = true	;;named user allowed
+						endusing
+					end
+					(),
+						nop
+					endusing
+					call checkAuthExec
+				end
+				endusing
+			end
+			else
+			begin
+				;;this should never happen
+			end
+
+			mreturn response
+
+		checkAuthSelect,
+			if (requestOK == false)
+				response = string.Concat("User : ", auth.username, " Is not authorized to access the requested table.")
+			return
+			
+		checkAuthExec,
+			if (requestOK == false)
+				response = string.Concat("User : ", auth.username, " Is not authorized to access the requested method.")
+			return
+			
+		checkFieldAccess_PARTS,
+
+			data item	,@FieldDataDefinition
+
+			;;check fields and prevent access to the tech info field
+			foreach item in fieldList
+			begin
+				if (item.LanguageName == "TECHNICAL_INFO") requestOK = false
+			end
+			
+			if (requestOK == false)
+				response = string.Concat("User : ", auth.username, " Is not authorized to access the requested fields.")
+
+			return
+
+		endmethod
+		
+	endclass
+
+endnamespace

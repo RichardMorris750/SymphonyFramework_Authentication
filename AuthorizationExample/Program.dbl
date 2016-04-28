@@ -1,0 +1,131 @@
+import System
+import System.Collections.Generic
+import System.Text
+
+import Symphony.Harmony
+import Symphony.Harmony.Model
+import Symphony.Conductor.Model
+import ProgramLibrary
+
+namespace AuthorizationExample
+
+    ;;; <summary>
+    ;;; The main entry point for the application.
+    ;;; </summary>
+    main
+
+	proc
+
+		;;this program requires the Symphony example database installed.  Check...
+		data logValue	,a255
+		data logLength	,i4
+		getlog("SYMPHONYDATA", logValue, logLength)
+		if (!logLength)
+		begin
+			Console.WriteLine("*********************************************************")
+			Console.WriteLine("*                                                       *")
+			Console.WriteLine("* Symphony sample data is required to run this program  *")
+			Console.WriteLine("*                                                       *")
+			Console.WriteLine("* Please visit www.symphonyframework.net to download    *")
+			Console.WriteLine("* and install the sample database.  Click on the        *")
+			Console.WriteLine("* download tab to downlaod the installer.               *")
+			Console.WriteLine("*                                                       *")
+			Console.WriteLine("*********************************************************")
+			Console.ReadKey()
+			stop
+		end
+
+		data response	,@List<DataObjectBase>	,new List<DataObjectBase>()
+
+		data connector, @DBConnector
+
+		;;these are method calls
+
+		try
+		begin
+			;;this should be a valid call
+			connector = new DBConnector("synlocal:richard/password!ProgramLibrary.TableMapper.MapTableToFile")
+			response = new DataExecute(connector, "exec @ProgramLibrary.ProgramClass.ProgramMethod ", new StringResponse_Data(), "Hello World")
+			Console.WriteLine("method call : result = " + ((StringResponse_Data)response[0]).StringValue)
+		end
+		catch (e, @Exception)
+		begin
+			Console.WriteLine(e.Message)
+		end
+		endtry
+
+		try
+		begin
+			;;this should be blocked from any connections
+			connector = new DBConnector("synlocal:guest/password!ProgramLibrary.TableMapper.MapTableToFile")
+			response = new DataExecute(connector, "exec @ProgramLibrary.ProgramClass.ProgramMethod ", new StringResponse_Data(), "Hello World")
+			Console.WriteLine("method call : result = " + ((StringResponse_Data)response[0]).StringValue)
+		end
+		catch (e, @Exception)
+		begin
+			Console.WriteLine(e.Message)
+		end
+		endtry
+
+		try
+		begin
+			;;this should be blocked from making the call
+			connector = new DBConnector("synlocal:anonymous/password!ProgramLibrary.TableMapper.MapTableToFile")
+			response = new DataExecute(connector, "exec @ProgramLibrary.ProgramClass.ProgramMethod ", new StringResponse_Data(), "Hello World")
+			Console.WriteLine("method call : result = " + ((StringResponse_Data)response[0]).StringValue)
+		end
+		catch (e, @Exception)
+		begin
+			Console.WriteLine(e.Message)
+		end
+		endtry
+		
+
+		;;these are select calls
+		
+		try
+		begin
+			;;this should be a valid call
+			connector = new DBConnector("synlocal:richard/password!ProgramLibrary.TableMapper.MapTableToFile")
+			response = new DataSelect(connector, "select id, description from PART", new Part_Data())
+			Console.WriteLine("select call : result = " + ((Part_Data)response[0]).Description)
+		end
+		catch (e, @Exception)
+		begin
+			Console.WriteLine(e.Message)
+		end
+		endtry
+		
+		try
+		begin
+			;;this should not allow access to the table
+			connector = new DBConnector("synlocal:anonymous/password!ProgramLibrary.TableMapper.MapTableToFile")
+			response = new DataSelect(connector, "select id, description from PART", new Part_Data())
+			Console.WriteLine("select call : result = " + ((Part_Data)response[0]).Description)
+		end
+		catch (e, @Exception)
+		begin
+			Console.WriteLine(e.Message)
+		end
+		endtry
+		
+		try
+		begin
+			;;this should not allow access to the select field
+			connector = new DBConnector("synlocal:richard/password!ProgramLibrary.TableMapper.MapTableToFile")
+			response = new DataSelect(connector, "select id, description, technical_info from PART", new Part_Data())
+			Console.WriteLine("select call : result = " + ((Part_Data)response[0]).Description)
+		end
+		catch (e, @Exception)
+		begin
+			Console.WriteLine(e.Message)
+		end
+		endtry
+		
+		
+		Console.WriteLine("press a key")
+		Console.ReadKey()
+
+	endmain
+
+endnamespace

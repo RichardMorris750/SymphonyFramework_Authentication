@@ -1,0 +1,22 @@
+import System
+import System.Collections.Generic
+import System.Text
+
+import Symphony.Harmony.Security
+import Symphony.Harmony.Model
+
+namespace ProgramLibrary
+
+	public class ProgramClass
+
+		{MethodSecurity(true)}
+		public method ProgramMethod	,@StringResponse_Data
+			in req inString			,string
+			endparams
+		proc
+			mreturn new StringResponse_Data(inString)
+		endmethod
+	
+	endclass
+
+endnamespace

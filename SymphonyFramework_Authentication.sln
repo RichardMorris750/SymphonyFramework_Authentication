@@ -1,0 +1,28 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 14
+VisualStudioVersion = 14.0.25123.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{BBD0F5D1-1CC4-42FD-BA4C-A96779C64378}") = "AuthorizationExample", "AuthorizationExample\AuthorizationExample.synproj", "{8045B018-4C5A-4636-A4C9-976D63BB0675}"
+EndProject
+Project("{BBD0F5D1-1CC4-42FD-BA4C-A96779C64378}") = "ProgramLibrary", "ProgramLibrary\ProgramLibrary.synproj", "{2B623C3D-D309-4EE4-8427-A5627D4ACA44}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{8045B018-4C5A-4636-A4C9-976D63BB0675}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8045B018-4C5A-4636-A4C9-976D63BB0675}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8045B018-4C5A-4636-A4C9-976D63BB0675}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8045B018-4C5A-4636-A4C9-976D63BB0675}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2B623C3D-D309-4EE4-8427-A5627D4ACA44}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2B623C3D-D309-4EE4-8427-A5627D4ACA44}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2B623C3D-D309-4EE4-8427-A5627D4ACA44}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2B623C3D-D309-4EE4-8427-A5627D4ACA44}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
